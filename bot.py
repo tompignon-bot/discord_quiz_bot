@@ -14,8 +14,8 @@ CHANNEL_ID = int(os.environ["CHANNEL_ID"])
 SHEET_JSON = os.environ["GOOGLE_CREDS_JSON"]
 SHEET_ID = os.environ["SHEET_ID"]
 
-TRIGGER_DAYS = ["Monday", "Thursday"]
-POST_HOUR = 15  # heure serveur
+TRIGGER_DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+POST_HOUR = datetime.datetime.now().hour  # poste dès que tu déploies
 
 # ========= DISCORD =========
 intents = discord.Intents.default()
