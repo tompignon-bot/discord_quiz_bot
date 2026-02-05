@@ -1,6 +1,5 @@
 import os
 import json
-import time
 import datetime
 import discord
 from discord.ext import commands, tasks
@@ -8,14 +7,12 @@ from discord.ui import View, Button
 import pandas as pd
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
-from dotenv import load_dotenv
 
 # ========= ENV =========
-load_dotenv()
-
-TOKEN = os.getenv("DISCORD_TOKEN")
-CHANNEL_ID = int(os.getenv("1466704925881794590"))
-SHEET_ID = os.getenv("1OLf7YoOjty7cS1aNpYEmQIPjY16hbaCg")
+TOKEN = os.environ["DISCORD_TOKEN"]
+CHANNEL_ID = int(os.environ["CHANNEL_ID"])
+SHEET_JSON = os.environ["GOOGLE_CREDS_JSON"]
+SHEET_ID = os.environ["SHEET_ID"]
 
 TRIGGER_DAYS = ["Monday", "Thursday"]
 POST_HOUR = 15  # heure serveur
@@ -26,22 +23,13 @@ intents.message_content = True
 bot = commands.Bot(command_prefix="!", intents=intents)
 
 # ========= GOOGLE SHEETS =========
-import gspread
-import json
-
-# Lire le fichier de credentials
-with open("credentials.json") as f:
-    creds_dict = json.load(f)
-
-# Authentification
+creds_dict = json.loads(SHEET_JSON)
 client = gspread.service_account_from_dict(creds_dict)
-
-# Remplace TON_SHEET_ID_ICI par l'ID de ton Sheet
-SHEET_ID = "1EIDpDLG_EnhPsePV8r2WIkeFyBMFsO2yNEbNWDenP1k"
 sheet = client.open_by_key(SHEET_ID).sheet1
 
 # Tester l'accès
-print(sheet.get_all_records())
+print("✅ Google Sheet accessible :", sheet.title)
+print(sheet.get_all_records()[:1])  # juste un aperçu des données
 
 # ========= DATA =========
 def load_questions():
@@ -94,10 +82,12 @@ async def eco_quiz():
 
     channel = bot.get_channel(CHANNEL_ID)
     if not channel:
+        print("⚠️ Channel introuvable")
         return
 
     q, df = get_next_question()
     if q.empty:
+        print("ℹ️ Pas de questions disponibles")
         return
 
     row = q.iloc[0]
@@ -127,6 +117,6 @@ async def stopquiz(ctx):
 # ========= READY =========
 @bot.event
 async def on_ready():
-    print(f"Connecté en tant que {bot.user}")
+    print(f"✅ Connecté en tant que {bot.user}")
 
 bot.run(TOKEN)
