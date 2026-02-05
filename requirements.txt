@@ -1,6 +1,4 @@
 discord.py
-aiohttp
-pandas
 gspread
 oauth2client
-flask
+pandas
